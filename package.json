@@ -2,10 +2,9 @@
   "name": "ebay",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "mock.js",
   "scripts": {
-    "server": "node index",
-    "prodServer": "nodemon index"
+    "server": "nodemon mock.js"
   },
   "keywords": [],
   "author": "",

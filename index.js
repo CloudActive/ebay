@@ -9,8 +9,9 @@ const getEbayDetails = async () => {
   let eligibleItemsArray = [];
 
   let skip = 0;
+  let limit = 10;
   const eligibleItems = await fetch(
-    `${eligibleItemsUrl}?limit=${10}&offset=${skip}`,
+    `${eligibleItemsUrl}?limit=${limit}&offset=${skip * limit}`,
     {
       headers: {
         'X-EBAY-C-MARKETPLACE-ID': 'EBAY_IN'
@@ -19,47 +20,7 @@ const getEbayDetails = async () => {
   );
   const itemObject = await eligibleItems.json();
   console.log(itemObject);
-  
-  // replace testJson with itemObject
-  // while (testJson.total > eligibleItemsArray.length) {
-  //   skip++;
-  //   const eligibleItems = await fetch(
-  //     `${eligibleItemsUrl}?limit=${10}&offset=${skip * 10}`,
-  //     {
-  //       headers: {
-  //         'X-EBAY-C-MARKETPLACE-ID': 'EBAY_IN'
-  //       }
-  //     }
-      
-  //   );
-  //   const itemObject = await eligibleItems.json();
-  //   console.log('itemObject', itemObject)
-    
-  //   // replace testJson with itemObject
-  //   testJson.eligibleItems.forEach(item => eligibleItemsArray.push({...item, dicountPercentage: '5%'}));
-  // }
-  
-  // eligibleItems.forEach(item => eligibleItemsArray.push({...item, dicountPercentage: '5%'}));
-  // console.log('itemsArray', JSON.stringify(eligibleItemsArray))
-
-  // { /* CreateOffersRequest */
-  //   'allowCounterOffer' : 'boolean',
-  //   'message' : 'string',
-  //   'offerDuration' :
-  //   { /* TimeDuration */
-  //   'unit' : 'TimeDurationUnitEnum : [YEAR,MONTH,DAY...]',
-  //   'value' : 'integer'},
-  //   'offeredItems' : [
-  //   { /* OfferedItem */
-  //   'discountPercentage' : 'string',
-  //   'listingId' : 'string',
-  //   'price' :
-  //   { /* Amount */
-  //   'currency' : 'CurrencyCodeEnum : [AED,AFN,ALL...]',
-  //   'value' : 'string'},
-  //   'quantity' : 'integer'}
-  //   ]
-  //   }
+  itemObject.eligibleItems.forEach(item => eligibleItemsArray.push({...item}));
 
   const offerRequest = {
     allowCounterOffer: false,
@@ -80,9 +41,6 @@ const getEbayDetails = async () => {
     {
       method: 'post',
       body: JSON.stringify(offerRequest),
-      // body: {
-      //     'offeredItems': JSON.stringify(offerRequest)
-      // },
       headers: {
         'X-EBAY-C-MARKETPLACE-ID': 'EBAY_IN',
         'Content-Type': 'application/json'
@@ -92,6 +50,55 @@ const getEbayDetails = async () => {
 
   const offerObject = await offerItems.json();
   console.log('offerObject values are', offerObject);
+  
+  // replace testJson with itemObject
+  while (itemObject.total > eligibleItemsArray.length) {
+    skip++;
+    const eligibleItems = await fetch(
+      `${eligibleItemsUrl}?limit=${10}&offset=${skip * limit}`,
+      {
+        headers: {
+          'X-EBAY-C-MARKETPLACE-ID': 'EBAY_IN'
+        }
+      }
+    );
+    const itemObject = await eligibleItems.json();
+    console.log('itemObject', itemObject)
+    
+    // replace testJson with itemObject
+    itemObject.eligibleItems.forEach(item => eligibleItemsArray.push({...item}));
+
+    const offerRequest = {
+      allowCounterOffer: false,
+      message: ' here is some discount for you',
+      offerDuration: {
+        unit: 'DAY',
+        value: 2,
+      },
+      offeredItems: itemObject.eligibleItems.map(({listingId}) => ({
+        listingId,
+        discountPercentage: 5,
+      }))
+    }
+  
+  
+    const offerItems = await fetch(
+      sendOfferUrl,
+      {
+        method: 'post',
+        body: JSON.stringify(offerRequest),
+        headers: {
+          'X-EBAY-C-MARKETPLACE-ID': 'EBAY_IN',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  
+    const offerObject = await offerItems.json();
+    console.log('offerObject values are', offerObject);
+  }
 };
+
+
 
 getEbayDetails();

@@ -30,8 +30,6 @@ app.get("/find_eligible_items", (req, res, next) => {
 });
 
 app.post("/send_offer_to_interested_buyers", (req, res, next) => {
-    console.log(req);
-    console.log(req.body);
     res.json({ /* SendOfferToInterestedBuyersCollectionResponse */
         "offers" : [
         { /* Offer */
