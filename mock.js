@@ -25,7 +25,7 @@ app.get("/find_eligible_items", (req, res, next) => {
             listingId: "270010252998"
           }
         ],
-        total: 12
+        total: 10
       })
 });
 
